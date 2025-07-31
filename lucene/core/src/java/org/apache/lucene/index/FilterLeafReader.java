@@ -48,8 +48,8 @@ public abstract class FilterLeafReader extends LeafReader {
    * FilterLeafReader}.
    */
   public static LeafReader unwrap(LeafReader reader) {
-    while (reader instanceof FilterLeafReader) {
-      reader = ((FilterLeafReader) reader).getDelegate();
+    while (reader instanceof FilterLeafReader r) {
+      reader = r.getDelegate();
     }
     return reader;
   }

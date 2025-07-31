@@ -770,28 +770,7 @@ public class TestLatLonShape extends LuceneTestCase {
     Directory dir = newDirectory();
     RandomIndexWriter w = new RandomIndexWriter(random(), dir);
     Document doc = new Document();
-    Polygon polygon;
-    while (true) {
-      try {
-        polygon = GeoTestUtil.nextPolygon();
-        // quantize the polygon
-        double[] lats = new double[polygon.numPoints()];
-        double[] lons = new double[polygon.numPoints()];
-        for (int i = 0; i < polygon.numPoints(); i++) {
-          lats[i] =
-              GeoEncodingUtils.decodeLatitude(
-                  GeoEncodingUtils.encodeLatitude(polygon.getPolyLat(i)));
-          lons[i] =
-              GeoEncodingUtils.decodeLongitude(
-                  GeoEncodingUtils.encodeLongitude(polygon.getPolyLon(i)));
-        }
-        polygon = new Polygon(lats, lons);
-        Tessellator.tessellate(polygon, random().nextBoolean());
-        break;
-      } catch (Exception _) {
-        // invalid polygon, try a new one
-      }
-    }
+    var polygon = createPolygon();
     addPolygonsToDoc(FIELDNAME, doc, polygon);
     w.addDocument(doc);
     w.forceMerge(1);
@@ -809,6 +788,30 @@ public class TestLatLonShape extends LuceneTestCase {
     assertEquals(0, searcher.count(q));
 
     IOUtils.close(w, reader, dir);
+  }
+
+  private static Polygon createPolygon() {
+    while (true) {
+      try {
+        final var init = GeoTestUtil.nextPolygon();
+        // quantize the polygon
+        double[] lats = new double[init.numPoints()];
+        double[] lons = new double[init.numPoints()];
+        for (int i = 0; i < init.numPoints(); i++) {
+          lats[i] =
+              GeoEncodingUtils.decodeLatitude(
+                  GeoEncodingUtils.encodeLatitude(init.getPolyLat(i)));
+          lons[i] =
+              GeoEncodingUtils.decodeLongitude(
+                  GeoEncodingUtils.encodeLongitude(init.getPolyLon(i)));
+        }
+        final var polygon = new Polygon(lats, lons);
+        Tessellator.tessellate(polygon, random().nextBoolean());
+        return polygon;
+      } catch (Exception _) {
+        // invalid polygon, try a new one
+      }
+    }
   }
 
   public void testPointIndexAndDistanceQuery() throws Exception {

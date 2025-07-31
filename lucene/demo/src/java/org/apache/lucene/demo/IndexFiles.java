@@ -86,25 +86,14 @@ public class IndexFiles implements AutoCloseable {
     String vectorDictSource = null;
     boolean create = true;
     for (int i = 0; i < args.length; i++) {
-      switch (args[i]) {
-        case "-index":
-          indexPath = args[++i];
-          break;
-        case "-docs":
-          docsPath = args[++i];
-          break;
-        case "-knn_dict":
-          vectorDictSource = args[++i];
-          break;
-        case "-update":
-          create = false;
-          break;
-        case "-create":
-          create = true;
-          break;
-        default:
-          throw new IllegalArgumentException("unknown parameter " + args[i]);
-      }
+        switch (args[i]) {
+            case "-index" -> indexPath = args[++i];
+            case "-docs" -> docsPath = args[++i];
+            case "-knn_dict" -> vectorDictSource = args[++i];
+            case "-update" -> create = false;
+            case "-create" -> create = true;
+            default -> throw new IllegalArgumentException("unknown parameter " + args[i]);
+        }
     }
 
     if (docsPath == null) {
