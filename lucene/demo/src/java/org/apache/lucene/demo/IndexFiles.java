@@ -103,7 +103,7 @@ public class IndexFiles implements AutoCloseable {
 
     final Path docDir = Paths.get(docsPath);
     if (!Files.isReadable(docDir)) {
-      System.out.println(
+      IO.println(
           "Document directory '"
               + docDir.toAbsolutePath()
               + "' does not exist or is not readable, please check the path");
@@ -112,7 +112,7 @@ public class IndexFiles implements AutoCloseable {
 
     Date start = new Date();
     try {
-      System.out.println("Indexing to directory '" + indexPath + "'...");
+      IO.println("Indexing to directory '" + indexPath + "'...");
 
       Directory dir = FSDirectory.open(Paths.get(indexPath));
       Analyzer analyzer = new StandardAnalyzer();
@@ -159,13 +159,13 @@ public class IndexFiles implements AutoCloseable {
 
       Date end = new Date();
       try (IndexReader reader = DirectoryReader.open(dir)) {
-        System.out.println(
+        IO.println(
             "Indexed "
                 + reader.numDocs()
                 + " documents in "
                 + (end.getTime() - start.getTime())
                 + " ms");
-        if (Objects.isNull(vectorDictSource) == false
+        if (!Objects.isNull(vectorDictSource)
             && reader.numDocs() > 100
             && vectorDictSize < 1_000_000
             && System.getProperty("smoketester") == null) {
@@ -174,7 +174,7 @@ public class IndexFiles implements AutoCloseable {
         }
       }
     } catch (IOException e) {
-      System.out.println(" caught a " + e.getClass() + "\n with message: " + e.getMessage());
+      IO.println(" caught a " + e.getClass() + "\n with message: " + e.getMessage());
     }
   }
 
@@ -203,8 +203,8 @@ public class IndexFiles implements AutoCloseable {
                 indexDoc(writer, file, attrs.lastModifiedTime().toMillis());
               } catch (
                   @SuppressWarnings("unused")
-                  IOException ignore) {
-                ignore.printStackTrace(System.err);
+                  IOException e) {
+                e.printStackTrace(System.err);
                 // don't index files that can't be read.
               }
               return FileVisitResult.CONTINUE;
@@ -259,13 +259,13 @@ public class IndexFiles implements AutoCloseable {
 
       if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
         // New index, so we just add the document (no old document can be there):
-        System.out.println("adding " + file);
+        IO.println("adding " + file);
         writer.addDocument(doc);
       } else {
         // Existing index (an old copy of this document may have been indexed) so
         // we use updateDocument instead to replace the old one matching the exact
         // path, if present:
-        System.out.println("updating " + file);
+        IO.println("updating " + file);
         writer.updateDocument(new Term("path", file.toString()), doc);
       }
     }
