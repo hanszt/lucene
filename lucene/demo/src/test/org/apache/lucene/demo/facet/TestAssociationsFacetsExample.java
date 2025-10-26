@@ -16,8 +16,6 @@
  */
 package org.apache.lucene.demo.facet;
 
-import java.util.List;
-import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.tests.util.LuceneTestCase;
 import org.junit.Test;
 
@@ -25,7 +23,7 @@ public class TestAssociationsFacetsExample extends LuceneTestCase {
 
   @Test
   public void testExamples() throws Exception {
-    List<FacetResult> res = new AssociationsFacetsExample().runSumAssociations();
+    var res = new AssociationsFacetsExample().runSumAssociations();
     assertEquals("Wrong number of results", 2, res.size());
     assertEquals(
         "dim=tags path=[] value=-1 childCount=2\n  lucene (4)\n  solr (2)\n",
@@ -37,7 +35,7 @@ public class TestAssociationsFacetsExample extends LuceneTestCase {
 
   @Test
   public void testDrillDown() throws Exception {
-    FacetResult result = new AssociationsFacetsExample().runDrillDown();
+    var result = new AssociationsFacetsExample().runDrillDown();
     assertEquals(
         "dim=genre path=[] value=-1.0 childCount=2\n  computing (0.75)\n  software (0.34)\n",
         result.toString());

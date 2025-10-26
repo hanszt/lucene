@@ -16,8 +16,6 @@
  */
 package org.apache.lucene.demo.facet;
 
-import java.util.List;
-import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.tests.util.LuceneTestCase;
 import org.junit.Test;
 
@@ -26,7 +24,7 @@ public class TestSimpleSortedSetFacetsExample extends LuceneTestCase {
 
   @Test
   public void testSimple() throws Exception {
-    List<FacetResult> results = new SimpleSortedSetFacetsExample().runSearch();
+    var results = new SimpleSortedSetFacetsExample().runSearch();
     assertEquals(2, results.size());
     assertEquals(
         "dim=Author path=[] value=5 childCount=4\n  Lisa (2)\n  Bob (1)\n  Frank (1)\n  Susan (1)\n",
@@ -38,7 +36,7 @@ public class TestSimpleSortedSetFacetsExample extends LuceneTestCase {
 
   @Test
   public void testDrillDown() throws Exception {
-    FacetResult result = new SimpleSortedSetFacetsExample().runDrillDown();
+    var result = new SimpleSortedSetFacetsExample().runDrillDown();
     assertEquals(
         "dim=Author path=[] value=2 childCount=2\n  Bob (1)\n  Lisa (1)\n", result.toString());
   }

@@ -24,7 +24,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.FacetField;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
-import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.facet.FacetsCollectorManager;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
@@ -57,14 +56,14 @@ public class MultiCategoryListsFacetsExample {
 
   /** Build the example index. */
   private void index() throws IOException {
-    IndexWriter indexWriter =
+    var indexWriter =
         new IndexWriter(
             indexDir, new IndexWriterConfig(new WhitespaceAnalyzer()).setOpenMode(OpenMode.CREATE));
 
     // Writes facet ords to a separate directory from the main index
-    DirectoryTaxonomyWriter taxoWriter = new DirectoryTaxonomyWriter(taxoDir);
+    var taxoWriter = new DirectoryTaxonomyWriter(taxoDir);
 
-    Document doc = new Document();
+    var doc = new Document();
     doc.add(new FacetField("Author", "Bob"));
     doc.add(new FacetField("Publish Date", "2010", "10", "15"));
     indexWriter.addDocument(config.build(taxoWriter, doc));
@@ -94,16 +93,16 @@ public class MultiCategoryListsFacetsExample {
 
   /** User runs a query and counts facets. */
   private List<FacetResult> search() throws IOException {
-    DirectoryReader indexReader = DirectoryReader.open(indexDir);
-    IndexSearcher searcher = new IndexSearcher(indexReader);
+    var indexReader = DirectoryReader.open(indexDir);
+    var searcher = new IndexSearcher(indexReader);
     TaxonomyReader taxoReader = new DirectoryTaxonomyReader(taxoDir);
 
-    FacetsCollectorManager fcm = new FacetsCollectorManager();
+    var fcm = new FacetsCollectorManager();
 
     // MatchAllDocsQuery is for "browsing" (counts facets
     // for all non-deleted docs in the index); normally
     // you'd use a "normal" query:
-    FacetsCollector fc =
+    var fc =
         FacetsCollectorManager.search(searcher, new MatchAllDocsQuery(), 10, fcm).facetsCollector();
 
     // Retrieve results
@@ -131,7 +130,7 @@ public class MultiCategoryListsFacetsExample {
   public static void main(String[] args) throws Exception {
     System.out.println("Facet counting over multiple category lists example:");
     System.out.println("-----------------------");
-    List<FacetResult> results = new MultiCategoryListsFacetsExample().runSearch();
+    var results = new MultiCategoryListsFacetsExample().runSearch();
     System.out.println("Author: " + results.get(0));
     System.out.println("Publish Date: " + results.get(1));
   }

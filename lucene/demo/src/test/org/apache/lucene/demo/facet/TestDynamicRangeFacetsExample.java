@@ -24,7 +24,7 @@ import org.junit.Test;
 public class TestDynamicRangeFacetsExample extends LuceneTestCase {
   @Test
   public void testExample() throws Exception {
-    List<DynamicRangeUtil.DynamicRangeInfo> res = new DynamicRangeFacetsExample().runSearch();
+    var res = new DynamicRangeFacetsExample().runSearch();
     assertEquals(
         List.of(
             new DynamicRangeUtil.DynamicRangeInfo(2, 137, 63, 75, 69d),

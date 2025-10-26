@@ -24,7 +24,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.DrillDownQuery;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
-import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.facet.FacetsCollectorManager;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.sortedset.DefaultSortedSetDocValuesReaderState;
@@ -54,10 +53,10 @@ public class SimpleSortedSetFacetsExample {
 
   /** Build the example index. */
   private void index() throws IOException {
-    IndexWriter indexWriter =
+    var indexWriter =
         new IndexWriter(
             indexDir, new IndexWriterConfig(new WhitespaceAnalyzer()).setOpenMode(OpenMode.CREATE));
-    Document doc = new Document();
+    var doc = new Document();
     doc.add(new SortedSetDocValuesFacetField("Author", "Bob"));
     doc.add(new SortedSetDocValuesFacetField("Publish Year", "2010"));
     indexWriter.addDocument(config.build(doc));
@@ -87,18 +86,18 @@ public class SimpleSortedSetFacetsExample {
 
   /** User runs a query and counts facets. */
   private List<FacetResult> search() throws IOException {
-    DirectoryReader indexReader = DirectoryReader.open(indexDir);
-    IndexSearcher searcher = new IndexSearcher(indexReader);
+    var indexReader = DirectoryReader.open(indexDir);
+    var searcher = new IndexSearcher(indexReader);
     SortedSetDocValuesReaderState state =
         new DefaultSortedSetDocValuesReaderState(indexReader, config);
 
     // Aggregates the facet counts
-    FacetsCollectorManager fcm = new FacetsCollectorManager();
+    var fcm = new FacetsCollectorManager();
 
     // MatchAllDocsQuery is for "browsing" (counts facets
     // for all non-deleted docs in the index); normally
     // you'd use a "normal" query:
-    FacetsCollector fc =
+    var fc =
         FacetsCollectorManager.search(searcher, new MatchAllDocsQuery(), 10, fcm).facetsCollector();
 
     // Retrieve results
@@ -114,20 +113,20 @@ public class SimpleSortedSetFacetsExample {
 
   /** User drills down on 'Publish Year/2010'. */
   private FacetResult drillDown() throws IOException {
-    DirectoryReader indexReader = DirectoryReader.open(indexDir);
-    IndexSearcher searcher = new IndexSearcher(indexReader);
+    var indexReader = DirectoryReader.open(indexDir);
+    var searcher = new IndexSearcher(indexReader);
     SortedSetDocValuesReaderState state =
         new DefaultSortedSetDocValuesReaderState(indexReader, config);
 
     // Now user drills down on Publish Year/2010:
-    DrillDownQuery q = new DrillDownQuery(config);
+    var q = new DrillDownQuery(config);
     q.add("Publish Year", "2010");
-    FacetsCollectorManager fcm = new FacetsCollectorManager();
-    FacetsCollector fc = FacetsCollectorManager.search(searcher, q, 10, fcm).facetsCollector();
+    var fcm = new FacetsCollectorManager();
+    var fc = FacetsCollectorManager.search(searcher, q, 10, fcm).facetsCollector();
 
     // Retrieve results
     Facets facets = new SortedSetDocValuesFacetCounts(state, fc);
-    FacetResult result = facets.getTopChildren(10, "Author");
+    var result = facets.getTopChildren(10, "Author");
     indexReader.close();
 
     return result;
@@ -149,8 +148,8 @@ public class SimpleSortedSetFacetsExample {
   public static void main(String[] args) throws Exception {
     System.out.println("Facet counting example:");
     System.out.println("-----------------------");
-    SimpleSortedSetFacetsExample example = new SimpleSortedSetFacetsExample();
-    List<FacetResult> results = example.runSearch();
+    var example = new SimpleSortedSetFacetsExample();
+    var results = example.runSearch();
     System.out.println("Author: " + results.get(0));
     System.out.println("Publish Year: " + results.get(1));
 

@@ -26,7 +26,6 @@ import org.apache.lucene.document.KeywordField;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
-import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.facet.FacetsCollectorManager;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.StringDocValuesReaderState;
@@ -55,11 +54,11 @@ public class StringValueFacetCountsExample {
 
   /** Build the example index. */
   private void index() throws IOException {
-    IndexWriter indexWriter =
+    var indexWriter =
         new IndexWriter(
             indexDir, new IndexWriterConfig(new WhitespaceAnalyzer()).setOpenMode(OpenMode.CREATE));
 
-    Document doc = new Document();
+    var doc = new Document();
     doc.add(new KeywordField("Author", "Bob", Field.Store.NO));
     doc.add(new SortedDocValuesField("Publish Year", new BytesRef("2010")));
     indexWriter.addDocument(config.build(doc));
@@ -89,20 +88,20 @@ public class StringValueFacetCountsExample {
 
   /** User runs a query and counts facets. */
   private List<FacetResult> search() throws IOException {
-    DirectoryReader indexReader = DirectoryReader.open(indexDir);
-    IndexSearcher searcher = new IndexSearcher(indexReader);
+    var indexReader = DirectoryReader.open(indexDir);
+    var searcher = new IndexSearcher(indexReader);
 
-    StringDocValuesReaderState authorState = new StringDocValuesReaderState(indexReader, "Author");
-    StringDocValuesReaderState publishState =
+    var authorState = new StringDocValuesReaderState(indexReader, "Author");
+    var publishState =
         new StringDocValuesReaderState(indexReader, "Publish Year");
 
     // Aggregates the facet counts
-    FacetsCollectorManager fcm = new FacetsCollectorManager();
+    var fcm = new FacetsCollectorManager();
 
     // MatchAllDocsQuery is for "browsing" (counts facets
     // for all non-deleted docs in the index); normally
     // you'd use a "normal" query:
-    FacetsCollector fc =
+    var fc =
         FacetsCollectorManager.search(searcher, new MatchAllDocsQuery(), 10, fcm).facetsCollector();
 
     // Retrieve results
@@ -127,8 +126,8 @@ public class StringValueFacetCountsExample {
   public static void main(String[] args) throws Exception {
     System.out.println("Facet counting example:");
     System.out.println("-----------------------");
-    StringValueFacetCountsExample example = new StringValueFacetCountsExample();
-    List<FacetResult> results = example.runSearch();
+    var example = new StringValueFacetCountsExample();
+    var results = example.runSearch();
     System.out.println("Author: " + results.get(0));
     System.out.println("Publish Year: " + results.get(1));
   }

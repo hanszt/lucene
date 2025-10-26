@@ -16,7 +16,6 @@
  */
 package org.apache.lucene.demo.facet;
 
-import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.LabelAndValue;
 import org.apache.lucene.tests.util.LuceneTestCase;
 import org.junit.Test;
@@ -25,7 +24,7 @@ public class TestCustomFacetSetExample extends LuceneTestCase {
 
   @Test
   public void testExactMatching() throws Exception {
-    FacetResult result = new CustomFacetSetExample().runExactMatching();
+    var result = new CustomFacetSetExample().runExactMatching();
 
     assertEquals("temperature", result.dim);
     assertEquals(0, result.path.length);
@@ -38,7 +37,7 @@ public class TestCustomFacetSetExample extends LuceneTestCase {
 
   @Test
   public void testExactMatchingWithFastMatchQuery() throws Exception {
-    FacetResult result = new CustomFacetSetExample().runExactMatchingWithFastMatchQuery();
+    var result = new CustomFacetSetExample().runExactMatchingWithFastMatchQuery();
 
     assertEquals("temperature", result.dim);
     assertEquals(0, result.path.length);
@@ -51,7 +50,7 @@ public class TestCustomFacetSetExample extends LuceneTestCase {
 
   @Test
   public void testRangeMatching() throws Exception {
-    FacetResult result = new CustomFacetSetExample().runRangeMatching();
+    var result = new CustomFacetSetExample().runRangeMatching();
 
     assertEquals("temperature", result.dim);
     assertEquals(0, result.path.length);
@@ -63,7 +62,7 @@ public class TestCustomFacetSetExample extends LuceneTestCase {
 
   @Test
   public void testCustomRangeMatching() throws Exception {
-    FacetResult result = new CustomFacetSetExample().runCustomRangeMatching();
+    var result = new CustomFacetSetExample().runCustomRangeMatching();
 
     assertEquals("temperature", result.dim);
     assertEquals(0, result.path.length);

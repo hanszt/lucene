@@ -25,15 +25,15 @@ import org.apache.lucene.tests.util.LuceneTestCase;
 public class TestDemo extends LuceneTestCase {
 
   private void testOneSearch(Path indexPath, String query, int expectedHitCount) throws Exception {
-    PrintStream outSave = System.out;
+    var outSave = System.out;
     try {
-      ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-      PrintStream fakeSystemOut = new PrintStream(bytes, false, Charset.defaultCharset());
+      var bytes = new ByteArrayOutputStream();
+      var fakeSystemOut = new PrintStream(bytes, false, Charset.defaultCharset());
       System.setOut(fakeSystemOut);
       SearchFiles.main(
           new String[] {"-query", query, "-index", indexPath.toString(), "-paging", "20"});
       fakeSystemOut.flush();
-      String output =
+      var output =
           bytes.toString(Charset.defaultCharset()); // intentionally use default encoding
       assertTrue(
           "output=" + output, output.contains(expectedHitCount + " total matching documents"));
@@ -43,8 +43,8 @@ public class TestDemo extends LuceneTestCase {
   }
 
   public void testIndexSearch() throws Exception {
-    Path dir = getDataPath("test-files/docs");
-    Path indexDir = createTempDir("ContribDemoTest");
+    var dir = getDataPath("test-files/docs");
+    var indexDir = createTempDir("ContribDemoTest");
     IndexFiles.main(
         new String[] {"-create", "-docs", dir.toString(), "-index", indexDir.toString()});
     testOneSearch(indexDir, "apache", 3);
@@ -63,20 +63,20 @@ public class TestDemo extends LuceneTestCase {
   private void testVectorSearch(
       Path indexPath, String query, int expectedMinHitCount, int expectedMaxHitCount)
       throws Exception {
-    PrintStream outSave = System.out;
+    var outSave = System.out;
     try {
-      ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-      PrintStream fakeSystemOut = new PrintStream(bytes, false, Charset.defaultCharset());
+      var bytes = new ByteArrayOutputStream();
+      var fakeSystemOut = new PrintStream(bytes, false, Charset.defaultCharset());
       System.setOut(fakeSystemOut);
       SearchFiles.main(
           new String[] {
             "-query", query, "-index", indexPath.toString(), "-knn_vector", "1", "-paging", "20"
           });
       fakeSystemOut.flush();
-      String output =
+      var output =
           bytes.toString(Charset.defaultCharset()); // intentionally use default encoding
-      int offset = output.indexOf(" total matching documents");
-      int hitCount =
+      var offset = output.indexOf(" total matching documents");
+      var hitCount =
           Integer.parseInt(output.substring(output.lastIndexOf('\n', offset) + 1, offset));
       assertTrue(
           "unexpected hit count " + hitCount + " for query: " + query,
@@ -87,10 +87,10 @@ public class TestDemo extends LuceneTestCase {
   }
 
   public void testKnnVectorSearch() throws Exception {
-    Path dir = getDataPath("test-files/docs");
-    Path indexDir = createTempDir("ContribDemoTest");
+    var dir = getDataPath("test-files/docs");
+    var indexDir = createTempDir("ContribDemoTest");
 
-    Path vectorDictSource = getDataPath("test-files/knn-dict").resolve("knn-token-vectors");
+    var vectorDictSource = getDataPath("test-files/knn-dict").resolve("knn-token-vectors");
     IndexFiles.main(
         new String[] {
           "-create",

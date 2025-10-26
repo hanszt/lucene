@@ -85,7 +85,7 @@ public class DistanceFacetsExample implements Closeable {
 
   /** Build the example index. */
   public void index() throws IOException {
-    IndexWriter writer =
+    var writer =
         new IndexWriter(
             indexDir, new IndexWriterConfig(new WhitespaceAnalyzer()).setOpenMode(OpenMode.CREATE));
 
@@ -94,7 +94,7 @@ public class DistanceFacetsExample implements Closeable {
     // Add documents with latitude/longitude location:
     // we index these both as DoublePoints (for bounding box/ranges) and as NumericDocValuesFields
     // (for scoring)
-    Document doc = new Document();
+    var doc = new Document();
     doc.add(new DoublePoint("latitude", 40.759011));
     doc.add(new NumericDocValuesField("latitude", Double.doubleToRawLongBits(40.759011)));
     doc.add(new DoublePoint("longitude", -73.9844722));
@@ -132,7 +132,7 @@ public class DistanceFacetsExample implements Closeable {
       // Should not happen
       throw new RuntimeException(pe);
     }
-    SimpleBindings bindings = new SimpleBindings();
+    var bindings = new SimpleBindings();
     bindings.add("latitude", DoubleValuesSource.fromDoubleField("latitude"));
     bindings.add("longitude", DoubleValuesSource.fromDoubleField("longitude"));
 
@@ -156,18 +156,18 @@ public class DistanceFacetsExample implements Closeable {
     // since it's a 2D trie...
 
     // Degrees -> Radians:
-    double originLatRadians = Math.toRadians(originLat);
-    double originLngRadians = Math.toRadians(originLng);
+    var originLatRadians = Math.toRadians(originLat);
+    var originLngRadians = Math.toRadians(originLng);
 
-    double angle = maxDistanceKM / EARTH_RADIUS_KM;
+    var angle = maxDistanceKM / EARTH_RADIUS_KM;
 
-    double minLat = originLatRadians - angle;
-    double maxLat = originLatRadians + angle;
+    var minLat = originLatRadians - angle;
+    var maxLat = originLatRadians + angle;
 
     double minLng;
     double maxLng;
     if (minLat > Math.toRadians(-90) && maxLat < Math.toRadians(90)) {
-      double delta = Math.asin(Math.sin(angle) / Math.cos(originLatRadians));
+      var delta = Math.asin(Math.sin(angle) / Math.cos(originLatRadians));
       minLng = originLngRadians - delta;
       if (minLng < Math.toRadians(-180)) {
         minLng += 2 * Math.PI;
@@ -184,7 +184,7 @@ public class DistanceFacetsExample implements Closeable {
       maxLng = Math.toRadians(180);
     }
 
-    BooleanQuery.Builder f = new BooleanQuery.Builder();
+    var f = new BooleanQuery.Builder();
 
     // Add latitude range filter:
     f.add(
@@ -195,7 +195,7 @@ public class DistanceFacetsExample implements Closeable {
     if (minLng > maxLng) {
       // The bounding box crosses the international date
       // line:
-      BooleanQuery.Builder lonF = new BooleanQuery.Builder();
+      var lonF = new BooleanQuery.Builder();
       lonF.add(
           DoublePoint.newRangeQuery("longitude", Math.toDegrees(minLng), Double.POSITIVE_INFINITY),
           BooleanClause.Occur.SHOULD);
@@ -215,7 +215,7 @@ public class DistanceFacetsExample implements Closeable {
   /** User runs a query and counts facets. */
   public FacetResult search() throws IOException {
 
-    FacetsCollector fc = searcher.search(new MatchAllDocsQuery(), new FacetsCollectorManager());
+    var fc = searcher.search(new MatchAllDocsQuery(), new FacetsCollectorManager());
 
     Facets facets =
         new DoubleRangeFacetCounts(
@@ -236,12 +236,12 @@ public class DistanceFacetsExample implements Closeable {
 
     // Passing no baseQuery means we drill down on all
     // documents ("browse only"):
-    DrillDownQuery q = new DrillDownQuery(null);
-    final DoubleValuesSource vs = getDistanceValueSource();
+    var q = new DrillDownQuery(null);
+    final var vs = getDistanceValueSource();
     q.add(
         "field",
         range.getQuery(getBoundingBoxQuery(ORIGIN_LATITUDE, ORIGIN_LONGITUDE, range.max), vs));
-    DrillSideways ds =
+    var ds =
         new DrillSideways(searcher, config, (TaxonomyReader) null) {
           @Override
           protected Facets buildFacetsResult(
@@ -264,7 +264,7 @@ public class DistanceFacetsExample implements Closeable {
 
   /** Runs the search and drill-down examples and prints the results. */
   public static void main(String[] args) throws Exception {
-    DistanceFacetsExample example = new DistanceFacetsExample();
+    var example = new DistanceFacetsExample();
     example.index();
 
     System.out.println("Distance facet counting example:");
@@ -273,7 +273,7 @@ public class DistanceFacetsExample implements Closeable {
 
     System.out.println("Distance facet drill-down example (field/< 2 km):");
     System.out.println("---------------------------------------------");
-    TopDocs hits = example.drillDown(example.TWO_KM);
+    var hits = example.drillDown(example.TWO_KM);
     System.out.println(hits.totalHits + " totalHits");
 
     example.close();

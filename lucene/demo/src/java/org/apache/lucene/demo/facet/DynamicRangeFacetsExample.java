@@ -19,14 +19,12 @@ package org.apache.lucene.demo.facet;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.StringField;
-import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.facet.FacetsCollectorManager;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.range.DynamicRangeUtil;
@@ -67,13 +65,13 @@ public class DynamicRangeFacetsExample {
 
   /** Build the example index. */
   private void index() throws IOException {
-    IndexWriter indexWriter =
+    var indexWriter =
         new IndexWriter(
             indexDir,
             new IndexWriterConfig(new WhitespaceAnalyzer())
                 .setOpenMode(IndexWriterConfig.OpenMode.CREATE));
 
-    Document doc = new Document();
+    var doc = new Document();
     doc.add(new StringField("Author", "J. R. R. Tolkien", Field.Store.NO));
     doc.add(new NumericDocValuesField("Popularity", 96));
     doc.add(new NumericDocValuesField("Books", 24));
@@ -109,22 +107,22 @@ public class DynamicRangeFacetsExample {
 
   /** User runs a query and counts facets. */
   private List<DynamicRangeUtil.DynamicRangeInfo> search() throws IOException {
-    DirectoryReader indexReader = DirectoryReader.open(indexDir);
-    IndexSearcher searcher = new IndexSearcher(indexReader);
+    var indexReader = DirectoryReader.open(indexDir);
+    var searcher = new IndexSearcher(indexReader);
 
-    LongValuesSource valuesSource = LongValuesSource.fromLongField("Popularity");
-    LongValuesSource weightsSource = LongValuesSource.fromLongField("Books");
+    var valuesSource = LongValuesSource.fromLongField("Popularity");
+    var weightsSource = LongValuesSource.fromLongField("Books");
 
     // Aggregates the facet counts
-    FacetsCollectorManager fcm = new FacetsCollectorManager();
+    var fcm = new FacetsCollectorManager();
 
     // MatchAllDocsQuery is for "browsing" (counts facets
     // for all non-deleted docs in the index); normally
     // you'd use a "normal" query:
-    FacetsCollector fc =
+    var fc =
         FacetsCollectorManager.search(searcher, new MatchAllDocsQuery(), 10, fcm).facetsCollector();
 
-    try (ExecutorService executor =
+    try (var executor =
         Executors.newFixedThreadPool(2, new NamedThreadFactory("dynamic-ranges"))) {
       // We ask for 2 ranges over popularity weighted by book count
       return DynamicRangeUtil.computeDynamicRanges(
@@ -142,9 +140,9 @@ public class DynamicRangeFacetsExample {
   public static void main(String[] args) throws Exception {
     System.out.println("Dynamic range facets example:");
     System.out.println("-----------------------");
-    DynamicRangeFacetsExample example = new DynamicRangeFacetsExample();
-    List<DynamicRangeUtil.DynamicRangeInfo> results = example.runSearch();
-    for (DynamicRangeUtil.DynamicRangeInfo range : results) {
+    var example = new DynamicRangeFacetsExample();
+    var results = example.runSearch();
+    for (var range : results) {
       System.out.printf(
           Locale.ROOT,
           "min: %d max: %d centroid: %f count: %d weight: %d%n",

@@ -24,10 +24,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.DrillDownQuery;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
-import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.facet.FacetsCollectorManager;
 import org.apache.lucene.facet.FacetsConfig;
-import org.apache.lucene.facet.LabelAndValue;
 import org.apache.lucene.facet.taxonomy.AssociationAggregationFunction;
 import org.apache.lucene.facet.taxonomy.FloatAssociationFacetField;
 import org.apache.lucene.facet.taxonomy.IntAssociationFacetField;
@@ -64,14 +62,14 @@ public class AssociationsFacetsExample {
 
   /** Build the example index. */
   private void index() throws IOException {
-    IndexWriterConfig iwc =
+    var iwc =
         new IndexWriterConfig(new WhitespaceAnalyzer()).setOpenMode(OpenMode.CREATE);
-    IndexWriter indexWriter = new IndexWriter(indexDir, iwc);
+    var indexWriter = new IndexWriter(indexDir, iwc);
 
     // Writes facet ords to a separate directory from the main index
-    DirectoryTaxonomyWriter taxoWriter = new DirectoryTaxonomyWriter(taxoDir);
+    var taxoWriter = new DirectoryTaxonomyWriter(taxoDir);
 
-    Document doc = new Document();
+    var doc = new Document();
     // 3 occurrences for tag 'lucene'
     doc.add(new IntAssociationFacetField(3, "tags", "lucene"));
     // 87% confidence level of genre 'computing'
@@ -94,17 +92,17 @@ public class AssociationsFacetsExample {
 
   /** User runs a query and aggregates facets by summing their association values. */
   private List<FacetResult> sumAssociations() throws IOException {
-    DirectoryReader indexReader = DirectoryReader.open(indexDir);
-    IndexSearcher searcher = new IndexSearcher(indexReader);
+    var indexReader = DirectoryReader.open(indexDir);
+    var searcher = new IndexSearcher(indexReader);
     TaxonomyReader taxoReader = new DirectoryTaxonomyReader(taxoDir);
 
     // MatchAllDocsQuery is for "browsing" (counts facets
     // for all non-deleted docs in the index); normally
     // you'd use a "normal" query:
-    FacetsCollectorManager.FacetsResult facetsResult =
+    var facetsResult =
         FacetsCollectorManager.search(
             searcher, new MatchAllDocsQuery(), 10, new FacetsCollectorManager());
-    FacetsCollector fc = facetsResult.facetsCollector();
+    var fc = facetsResult.facetsCollector();
 
     Facets tags =
         new TaxonomyFacetIntAssociations(
@@ -125,24 +123,24 @@ public class AssociationsFacetsExample {
 
   /** User drills down on 'tags/solr'. */
   private FacetResult drillDown() throws IOException {
-    DirectoryReader indexReader = DirectoryReader.open(indexDir);
-    IndexSearcher searcher = new IndexSearcher(indexReader);
+    var indexReader = DirectoryReader.open(indexDir);
+    var searcher = new IndexSearcher(indexReader);
     TaxonomyReader taxoReader = new DirectoryTaxonomyReader(taxoDir);
 
     // Passing no baseQuery means we drill down on all
     // documents ("browse only"):
-    DrillDownQuery q = new DrillDownQuery(config);
+    var q = new DrillDownQuery(config);
 
     // Now user drills down on Publish Date/2010:
     q.add("tags", "solr");
-    FacetsCollectorManager fcm = new FacetsCollectorManager();
-    FacetsCollector fc = FacetsCollectorManager.search(searcher, q, 10, fcm).facetsCollector();
+    var fcm = new FacetsCollectorManager();
+    var fc = FacetsCollectorManager.search(searcher, q, 10, fcm).facetsCollector();
 
     // Retrieve results
     Facets facets =
         new TaxonomyFacetFloatAssociations(
             "$genre", taxoReader, config, fc, AssociationAggregationFunction.SUM);
-    FacetResult result = facets.getTopChildren(10, "genre");
+    var result = facets.getTopChildren(10, "genre");
 
     IOUtils.close(indexReader, taxoReader);
 
@@ -165,13 +163,13 @@ public class AssociationsFacetsExample {
   public static void main(String[] args) throws Exception {
     System.out.println("Sum associations example:");
     System.out.println("-------------------------");
-    List<FacetResult> results = new AssociationsFacetsExample().runSumAssociations();
+    var results = new AssociationsFacetsExample().runSumAssociations();
     System.out.println("tags: " + results.get(0));
     System.out.println("genre: " + results.get(1));
     System.out.println("-------------------------");
     System.out.println("Counts per label are also available:");
-    for (FacetResult facetResult : results) {
-      for (LabelAndValue lv : facetResult.labelValues) {
+    for (var facetResult : results) {
+      for (var lv : facetResult.labelValues) {
         System.out.println("\t" + lv.label + ": " + lv.count);
       }
     }

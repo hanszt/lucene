@@ -16,16 +16,14 @@
  */
 package org.apache.lucene.demo.facet;
 
-import org.apache.lucene.facet.FacetResult;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.tests.util.LuceneTestCase;
 
 public class TestDistanceFacetsExample extends LuceneTestCase {
 
   public void testSimple() throws Exception {
-    DistanceFacetsExample example = new DistanceFacetsExample();
+    var example = new DistanceFacetsExample();
     example.index();
-    FacetResult result = example.search();
+    var result = example.search();
     assertEquals(
         "dim=field path=[] value=3 childCount=4\n  < 1 km (1)\n  < 2 km (2)\n  < 5 km (2)\n  < 10 km (3)\n",
         result.toString());
@@ -33,9 +31,9 @@ public class TestDistanceFacetsExample extends LuceneTestCase {
   }
 
   public void testDrillDown() throws Exception {
-    DistanceFacetsExample example = new DistanceFacetsExample();
+    var example = new DistanceFacetsExample();
     example.index();
-    TopDocs hits = example.drillDown(example.FIVE_KM);
+    var hits = example.drillDown(example.FIVE_KM);
     assertEquals(2, hits.totalHits.value());
     example.close();
   }

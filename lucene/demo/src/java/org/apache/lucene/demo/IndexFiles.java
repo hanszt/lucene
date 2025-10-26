@@ -18,7 +18,6 @@ package org.apache.lucene.demo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
@@ -75,17 +74,17 @@ public class IndexFiles implements AutoCloseable {
 
   /** Index all text files under a directory. */
   public static void main(String[] args) throws Exception {
-    String usage =
+    var usage =
         "java org.apache.lucene.demo.IndexFiles"
             + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update] [-knn_dict DICT_PATH]\n\n"
             + "This indexes the documents in DOCS_PATH, creating a Lucene index "
             + "in INDEX_PATH that can be searched with SearchFiles\n"
             + "IF DICT_PATH contains a KnnVector dictionary, the index will also support KnnVector search";
-    String indexPath = "index";
+    var indexPath = "index";
     String docsPath = null;
     String vectorDictSource = null;
-    boolean create = true;
-    for (int i = 0; i < args.length; i++) {
+    var create = true;
+    for (var i = 0; i < args.length; i++) {
         switch (args[i]) {
             case "-index" -> indexPath = args[++i];
             case "-docs" -> docsPath = args[++i];
@@ -101,7 +100,7 @@ public class IndexFiles implements AutoCloseable {
       System.exit(1);
     }
 
-    final Path docDir = Paths.get(docsPath);
+    final var docDir = Paths.get(docsPath);
     if (!Files.isReadable(docDir)) {
       IO.println(
           "Document directory '"
@@ -110,13 +109,13 @@ public class IndexFiles implements AutoCloseable {
       System.exit(1);
     }
 
-    Date start = new Date();
+    var start = new Date();
     try {
       IO.println("Indexing to directory '" + indexPath + "'...");
 
       Directory dir = FSDirectory.open(Paths.get(indexPath));
       Analyzer analyzer = new StandardAnalyzer();
-      IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
+      var iwc = new IndexWriterConfig(analyzer);
 
       if (create) {
         // Create a new index in the directory, removing any
@@ -142,8 +141,8 @@ public class IndexFiles implements AutoCloseable {
         vectorDictSize = vectorDictInstance.ramBytesUsed();
       }
 
-      try (IndexWriter writer = new IndexWriter(dir, iwc);
-          IndexFiles indexFiles = new IndexFiles(vectorDictInstance)) {
+      try (var writer = new IndexWriter(dir, iwc);
+          var indexFiles = new IndexFiles(vectorDictInstance)) {
         indexFiles.indexDocs(writer, docDir);
 
         // NOTE: if you want to maximize search performance,
@@ -157,7 +156,7 @@ public class IndexFiles implements AutoCloseable {
         IOUtils.close(vectorDictInstance);
       }
 
-      Date end = new Date();
+      var end = new Date();
       try (IndexReader reader = DirectoryReader.open(dir)) {
         IO.println(
             "Indexed "
@@ -217,9 +216,9 @@ public class IndexFiles implements AutoCloseable {
 
   /** Indexes a single document */
   void indexDoc(IndexWriter writer, Path file, long lastModified) throws IOException {
-    try (InputStream stream = Files.newInputStream(file)) {
+    try (var stream = Files.newInputStream(file)) {
       // make a new, empty document
-      Document doc = new Document();
+      var doc = new Document();
 
       // Add the path of the file as a field named "path".  Use a
       // field that is indexed (i.e. searchable), but don't tokenize
@@ -247,8 +246,8 @@ public class IndexFiles implements AutoCloseable {
               new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))));
 
       if (demoEmbeddings != null) {
-        try (InputStream in = Files.newInputStream(file)) {
-          float[] vector =
+        try (var in = Files.newInputStream(file)) {
+          var vector =
               demoEmbeddings.computeEmbedding(
                   new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8)));
           doc.add(

@@ -29,7 +29,6 @@ import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
-import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.facet.FacetsCollectorManager;
 import org.apache.lucene.facet.facetset.DimRange;
 import org.apache.lucene.facet.facetset.ExactFacetSetMatcher;
@@ -76,13 +75,13 @@ public class CustomFacetSetExample {
 
   /** Build the example index. */
   private void index() throws IOException {
-    IndexWriter indexWriter =
+    var indexWriter =
         new IndexWriter(
             indexDir, new IndexWriterConfig(new WhitespaceAnalyzer()).setOpenMode(OpenMode.CREATE));
 
     // Every document holds the temperature measures for a City by Date
 
-    Document doc = new Document();
+    var doc = new Document();
     doc.add(new StringField("city", "city1", Field.Store.YES));
     doc.add(
         FacetSetsField.create(
@@ -121,13 +120,13 @@ public class CustomFacetSetExample {
 
   /** Counting documents which exactly match a given {@link FacetSet}. */
   private FacetResult exactMatching() throws IOException {
-    try (DirectoryReader indexReader = DirectoryReader.open(indexDir)) {
-      IndexSearcher searcher = new IndexSearcher(indexReader);
+    try (var indexReader = DirectoryReader.open(indexDir)) {
+      var searcher = new IndexSearcher(indexReader);
 
       // MatchAllDocsQuery is for "browsing" (counts facets
       // for all non-deleted docs in the index); normally
       // you'd use a "normal" query:
-      FacetsCollector fc = searcher.search(new MatchAllDocsQuery(), new FacetsCollectorManager());
+      var fc = searcher.search(new MatchAllDocsQuery(), new FacetsCollectorManager());
 
       // Count both "May 2022, 100 degrees" and "July 2022, 120 degrees" dimensions
       Facets facets =
@@ -153,13 +152,13 @@ public class CustomFacetSetExample {
    * which cannot possibly match a set.
    */
   private FacetResult exactMatchingWithFastMatchQuery() throws IOException {
-    try (DirectoryReader indexReader = DirectoryReader.open(indexDir)) {
-      IndexSearcher searcher = new IndexSearcher(indexReader);
+    try (var indexReader = DirectoryReader.open(indexDir)) {
+      var searcher = new IndexSearcher(indexReader);
 
       // MatchAllDocsQuery is for "browsing" (counts facets
       // for all non-deleted docs in the index); normally
       // you'd use a "normal" query:
-      FacetsCollector fc = searcher.search(new MatchAllDocsQuery(), new FacetsCollectorManager());
+      var fc = searcher.search(new MatchAllDocsQuery(), new FacetsCollectorManager());
 
       // Match documents whose "day" field is either "May 2022" or "July 2022"
       Query dateQuery =
@@ -203,13 +202,13 @@ public class CustomFacetSetExample {
 
   /** Counting documents which match a certain degrees value for any date. */
   private FacetResult rangeMatching() throws IOException {
-    try (DirectoryReader indexReader = DirectoryReader.open(indexDir)) {
-      IndexSearcher searcher = new IndexSearcher(indexReader);
+    try (var indexReader = DirectoryReader.open(indexDir)) {
+      var searcher = new IndexSearcher(indexReader);
 
       // MatchAllDocsQuery is for "browsing" (counts facets
       // for all non-deleted docs in the index); normally
       // you'd use a "normal" query:
-      FacetsCollector fc = searcher.search(new MatchAllDocsQuery(), new FacetsCollectorManager());
+      var fc = searcher.search(new MatchAllDocsQuery(), new FacetsCollectorManager());
 
       // Count 80-100 degrees
       Facets facets =
@@ -233,13 +232,13 @@ public class CustomFacetSetExample {
    * one).
    */
   private FacetResult customRangeMatching() throws IOException {
-    try (DirectoryReader indexReader = DirectoryReader.open(indexDir)) {
-      IndexSearcher searcher = new IndexSearcher(indexReader);
+    try (var indexReader = DirectoryReader.open(indexDir)) {
+      var searcher = new IndexSearcher(indexReader);
 
       // MatchAllDocsQuery is for "browsing" (counts facets
       // for all non-deleted docs in the index); normally
       // you'd use a "normal" query:
-      FacetsCollector fc = searcher.search(new MatchAllDocsQuery(), new FacetsCollectorManager());
+      var fc = searcher.search(new MatchAllDocsQuery(), new FacetsCollectorManager());
 
       // Count 80-100 degrees
       Facets facets =
@@ -290,11 +289,11 @@ public class CustomFacetSetExample {
 
   /** Runs the search and drill-down examples and prints the results. */
   public static void main(String[] args) throws Exception {
-    CustomFacetSetExample example = new CustomFacetSetExample();
+    var example = new CustomFacetSetExample();
 
     System.out.println("Exact Facet Set matching example:");
     System.out.println("-----------------------");
-    FacetResult result = example.runExactMatching();
+    var result = example.runExactMatching();
     System.out.println("Temperature Reading: " + result);
 
     System.out.println("Exact Facet Set matching with fast match query example:");

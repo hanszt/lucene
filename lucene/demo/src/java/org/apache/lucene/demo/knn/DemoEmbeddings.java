@@ -70,7 +70,7 @@ public class DemoEmbeddings {
    * @return the KnnVector for the input
    */
   public float[] computeEmbedding(Reader input) throws IOException {
-    try (TokenStream tokens = analyzer.tokenStream("dummyField", input)) {
+    try (var tokens = analyzer.tokenStream("dummyField", input)) {
       tokens.reset();
       while (tokens.incrementToken()) {}
       tokens.end();

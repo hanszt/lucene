@@ -17,7 +17,6 @@
 package org.apache.lucene.demo.knn;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Arrays;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.tests.util.LuceneTestCase;
@@ -26,13 +25,13 @@ import org.apache.lucene.util.BytesRef;
 public class TestKnnVectorDict extends LuceneTestCase {
 
   public void testBuild() throws IOException {
-    Path testVectors = getDataPath("../test-files/knn-dict").resolve("knn-token-vectors");
+    var testVectors = getDataPath("../test-files/knn-dict").resolve("knn-token-vectors");
 
     try (Directory directory = newDirectory()) {
       KnnVectorDict.build(testVectors, directory, "dict");
-      try (KnnVectorDict dict = new KnnVectorDict(directory, "dict")) {
+      try (var dict = new KnnVectorDict(directory, "dict")) {
         assertEquals(50, dict.getDimension());
-        byte[] vector = new byte[dict.getDimension() * Float.BYTES];
+        var vector = new byte[dict.getDimension() * Float.BYTES];
 
         // not found token has zero vector
         dict.get(new BytesRef("never saw this token"), vector);

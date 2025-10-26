@@ -23,7 +23,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -59,12 +58,12 @@ public class KnnVectorDict implements Closeable {
    *     '.bin' file.
    */
   public KnnVectorDict(Directory directory, String dictName) throws IOException {
-    try (IndexInput fstIn = directory.openInput(dictName + ".fst", IOContext.DEFAULT)) {
+    try (var fstIn = directory.openInput(dictName + ".fst", IOContext.DEFAULT)) {
       fst = new FST<>(readMetadata(fstIn, PositiveIntOutputs.getSingleton()), fstIn);
     }
 
     vectors = directory.openInput(dictName + ".bin", IOContext.DEFAULT);
-    long size = vectors.length();
+    var size = vectors.length();
     vectors.seek(size - Integer.BYTES);
     dimension = vectors.readInt();
     if ((size - Integer.BYTES) % (dimension * (long) Float.BYTES) != 0) {
@@ -93,7 +92,7 @@ public class KnnVectorDict implements Closeable {
               + ", got "
               + output.length);
     }
-    Long ord = Util.get(fst, token);
+    var ord = Util.get(fst, token);
     if (ord == null) {
       Arrays.fill(output, (byte) 0);
     } else {
@@ -148,9 +147,9 @@ public class KnnVectorDict implements Closeable {
     }
 
     void build(Path gloveInput, Directory directory, String dictName) throws IOException {
-      try (BufferedReader in = Files.newBufferedReader(gloveInput);
-          IndexOutput binOut = directory.createOutput(dictName + ".bin", IOContext.DEFAULT);
-          IndexOutput fstOut = directory.createOutput(dictName + ".fst", IOContext.DEFAULT)) {
+      try (var in = Files.newBufferedReader(gloveInput);
+          var binOut = directory.createOutput(dictName + ".bin", IOContext.DEFAULT);
+          var fstOut = directory.createOutput(dictName + ".fst", IOContext.DEFAULT)) {
         writeFirstLine(in, binOut);
         while (addOneLine(in, binOut)) {
           // continue;
@@ -161,7 +160,7 @@ public class KnnVectorDict implements Closeable {
     }
 
     private void writeFirstLine(BufferedReader in, IndexOutput out) throws IOException {
-      String[] fields = readOneLine(in);
+      var fields = readOneLine(in);
       if (fields == null) {
         return;
       }
@@ -173,7 +172,7 @@ public class KnnVectorDict implements Closeable {
     }
 
     private String[] readOneLine(BufferedReader in) throws IOException {
-      String line = in.readLine();
+      var line = in.readLine();
       if (line == null) {
         return null;
       }
@@ -181,7 +180,7 @@ public class KnnVectorDict implements Closeable {
     }
 
     private boolean addOneLine(BufferedReader in, IndexOutput out) throws IOException {
-      String[] fields = readOneLine(in);
+      var fields = readOneLine(in);
       if (fields == null) {
         return false;
       }
@@ -201,13 +200,13 @@ public class KnnVectorDict implements Closeable {
 
     private void writeVector(String[] fields, IndexOutput out) throws IOException {
       byteBuffer.position(0);
-      FloatBuffer floatBuffer = byteBuffer.asFloatBuffer();
-      for (int i = 1; i < fields.length; i++) {
+      var floatBuffer = byteBuffer.asFloatBuffer();
+      for (var i = 1; i < fields.length; i++) {
         scratch[i - 1] = Float.parseFloat(fields[i]);
       }
       VectorUtil.l2normalize(scratch);
       floatBuffer.put(scratch);
-      byte[] bytes = byteBuffer.array();
+      var bytes = byteBuffer.array();
       out.writeBytes(bytes, bytes.length);
     }
   }

@@ -29,9 +29,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.demo.knn.DemoEmbeddings;
 import org.apache.lucene.demo.knn.KnnVectorDict;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.StoredFields;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
@@ -40,8 +38,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.KnnFloatVectorQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryVisitor;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.IOUtils;
 
@@ -52,23 +48,23 @@ public class SearchFiles {
 
   /** Simple command-line based search demo. */
   public static void main(String[] args) throws Exception {
-    String usage =
+    var usage =
         "Usage:\tjava org.apache.lucene.demo.SearchFiles [-index dir] [-field f] [-repeat n] [-queries file] [-query string] [-raw] [-paging hitsPerPage] [-knn_vector knnHits]\n\nSee http://lucene.apache.org/core/9_0_0/demo/ for details.";
     if (args.length > 0 && ("-h".equals(args[0]) || "-help".equals(args[0]))) {
       System.out.println(usage);
       System.exit(0);
     }
 
-    String index = "index";
-    String field = "contents";
+    var index = "index";
+    var field = "contents";
     String queries = null;
-    int repeat = 0;
-    boolean raw = false;
-    int knnVectors = 0;
+    var repeat = 0;
+    var raw = false;
+    var knnVectors = 0;
     String queryString = null;
-    int hitsPerPage = 10;
+    var hitsPerPage = 10;
 
-    for (int i = 0; i < args.length; i++) {
+    for (var i = 0; i < args.length; i++) {
       switch (args[i]) {
         case "-index":
           index = args[++i];
@@ -104,8 +100,8 @@ public class SearchFiles {
       }
     }
 
-    DirectoryReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
-    IndexSearcher searcher = new IndexSearcher(reader);
+    var reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+    var searcher = new IndexSearcher(reader);
     Analyzer analyzer = new StandardAnalyzer();
     KnnVectorDict vectorDict = null;
     if (knnVectors > 0) {
@@ -117,13 +113,13 @@ public class SearchFiles {
     } else {
       in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
     }
-    QueryParser parser = new QueryParser(field, analyzer);
+    var parser = new QueryParser(field, analyzer);
     while (true) {
       if (queries == null && queryString == null) { // prompt the user
         System.out.println("Enter query: ");
       }
 
-      String line = queryString != null ? queryString : in.readLine();
+      var line = queryString != null ? queryString : in.readLine();
 
       if (line == null || line.length() == -1) {
         break;
@@ -134,18 +130,18 @@ public class SearchFiles {
         break;
       }
 
-      Query query = parser.parse(line);
+      var query = parser.parse(line);
       if (knnVectors > 0) {
         query = addSemanticQuery(query, vectorDict, knnVectors);
       }
       System.out.println("Searching for: " + query.toString(field));
 
       if (repeat > 0) { // repeat & time as benchmark
-        Date start = new Date();
-        for (int i = 0; i < repeat; i++) {
+        var start = new Date();
+        for (var i = 0; i < repeat; i++) {
           searcher.search(query, 100);
         }
-        Date end = new Date();
+        var end = new Date();
         System.out.println("Time: " + (end.getTime() - start.getTime()) + "ms");
       }
 
@@ -176,14 +172,14 @@ public class SearchFiles {
       throws IOException {
 
     // Collect enough docs to show 5 pages
-    TopDocs results = searcher.search(query, 5 * hitsPerPage);
-    ScoreDoc[] hits = results.scoreDocs;
+    var results = searcher.search(query, 5 * hitsPerPage);
+    var hits = results.scoreDocs;
 
-    int numTotalHits = Math.toIntExact(results.totalHits.value());
+    var numTotalHits = Math.toIntExact(results.totalHits.value());
     System.out.println(numTotalHits + " total matching documents");
 
-    int start = 0;
-    int end = Math.min(numTotalHits, hitsPerPage);
+    var start = 0;
+    var end = Math.min(numTotalHits, hitsPerPage);
 
     while (true) {
       if (end > hits.length) {
@@ -194,7 +190,7 @@ public class SearchFiles {
                 + numTotalHits
                 + " total matching documents collected.");
         System.out.println("Collect more (y/n) ?");
-        String line = in.readLine();
+        var line = in.readLine();
         if (line == null || line.length() == 0 || line.charAt(0) == 'n') {
           break;
         }
@@ -204,18 +200,18 @@ public class SearchFiles {
 
       end = Math.min(hits.length, start + hitsPerPage);
 
-      StoredFields storedFields = searcher.storedFields();
-      for (int i = start; i < end; i++) {
+      var storedFields = searcher.storedFields();
+      for (var i = start; i < end; i++) {
         if (raw) { // output raw format
           System.out.println("doc=" + hits[i].doc + " score=" + hits[i].score);
           continue;
         }
 
-        Document doc = storedFields.document(hits[i].doc);
-        String path = doc.get("path");
+        var doc = storedFields.document(hits[i].doc);
+        var path = doc.get("path");
         if (path != null) {
           System.out.println((i + 1) + ". " + path);
-          String title = doc.get("title");
+          var title = doc.get("title");
           if (title != null) {
             System.out.println("   Title: " + title);
           }
@@ -229,7 +225,7 @@ public class SearchFiles {
       }
 
       if (numTotalHits >= end) {
-        boolean quit = false;
+        var quit = false;
         while (true) {
           System.out.print("Press ");
           if (start - hitsPerPage >= 0) {
@@ -240,7 +236,7 @@ public class SearchFiles {
           }
           System.out.println("(q)uit or enter number to jump to a page.");
 
-          String line = in.readLine();
+          var line = in.readLine();
           if (line == null || line.length() == 0 || line.charAt(0) == 'q') {
             quit = true;
             break;
@@ -254,7 +250,7 @@ public class SearchFiles {
             }
             break;
           } else {
-            int page = Integer.parseInt(line);
+            var page = Integer.parseInt(line);
             if ((page - 1) * hitsPerPage < numTotalHits) {
               start = (page - 1) * hitsPerPage;
               break;
@@ -271,19 +267,19 @@ public class SearchFiles {
 
   private static Query addSemanticQuery(Query query, KnnVectorDict vectorDict, int k)
       throws IOException {
-    StringBuilder semanticQueryText = new StringBuilder();
-    QueryFieldTermExtractor termExtractor = new QueryFieldTermExtractor("contents");
+    var semanticQueryText = new StringBuilder();
+    var termExtractor = new QueryFieldTermExtractor("contents");
     query.visit(termExtractor);
-    for (String term : termExtractor.terms) {
+    for (var term : termExtractor.terms) {
       semanticQueryText.append(term).append(' ');
     }
     if (semanticQueryText.length() > 0) {
-      KnnFloatVectorQuery knnQuery =
+      var knnQuery =
           new KnnFloatVectorQuery(
               "contents-vector",
               new DemoEmbeddings(vectorDict).computeEmbedding(semanticQueryText.toString()),
               k);
-      BooleanQuery.Builder builder = new BooleanQuery.Builder();
+      var builder = new BooleanQuery.Builder();
       builder.add(query, BooleanClause.Occur.SHOULD);
       builder.add(knnQuery, BooleanClause.Occur.SHOULD);
       return builder.build();
@@ -306,7 +302,7 @@ public class SearchFiles {
 
     @Override
     public void consumeTerms(Query query, Term... terms) {
-      for (Term term : terms) {
+      for (var term : terms) {
         this.terms.add(term.text());
       }
     }

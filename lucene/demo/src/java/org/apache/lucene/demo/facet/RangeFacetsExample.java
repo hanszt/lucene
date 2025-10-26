@@ -63,15 +63,15 @@ public class RangeFacetsExample implements Closeable {
 
   /** Build the example index. */
   public void index() throws IOException {
-    IndexWriter indexWriter =
+    var indexWriter =
         new IndexWriter(
             indexDir, new IndexWriterConfig(new WhitespaceAnalyzer()).setOpenMode(OpenMode.CREATE));
 
     // Add documents with a fake timestamp, 1000 sec before
     // "now", 2000 sec before "now", ...:
-    for (int i = 0; i < 100; i++) {
-      Document doc = new Document();
-      long then = nowSec - i * 1000L;
+    for (var i = 0; i < 100; i++) {
+      var doc = new Document();
+      var then = nowSec - i * 1000L;
       // Add as doc values field, so we can compute range facets:
       doc.add(new NumericDocValuesField("timestamp", then));
       // Add as numeric field so we can drill-down:
@@ -82,16 +82,16 @@ public class RangeFacetsExample implements Closeable {
     // Add documents with a fake timestamp for the past 7 days (24 * 7 = 168 hours), 3600 sec (1
     // hour) from "now", 7200 sec (2 hours) from "now", ...:
     long startTime = 0;
-    for (int i = 0; i < 168; i++) {
-      long endTime = (i + 1) * 3600L;
+    for (var i = 0; i < 168; i++) {
+      var endTime = (i + 1) * 3600L;
       // Choose a relatively large number, e,g., "35", to create variation in count for
       // the top n children, so that calling getTopChildren(10) can return top 10 children with
       // different counts
-      for (int j = 0; j < i % 35; j++) {
-        Document doc = new Document();
-        Random r = new Random();
+      for (var j = 0; j < i % 35; j++) {
+        var doc = new Document();
+        var r = new Random();
         // Randomly generate a timestamp within the current range
-        long randomTimestamp = r.nextLong(1, endTime - startTime) + startTime;
+        var randomTimestamp = r.nextLong(1, endTime - startTime) + startTime;
         // Add as doc values field, so we can compute range facets:
         doc.add(new NumericDocValuesField("error timestamp", randomTimestamp));
         doc.add(
@@ -119,7 +119,7 @@ public class RangeFacetsExample implements Closeable {
     // MatchAllDocsQuery is for "browsing" (counts facets
     // for all non-deleted docs in the index); normally
     // you'd use a "normal" query:
-    FacetsCollector fc =
+    var fc =
         FacetsCollectorManager.search(
                 searcher, new MatchAllDocsQuery(), 10, new FacetsCollectorManager())
             .facetsCollector();
@@ -132,12 +132,12 @@ public class RangeFacetsExample implements Closeable {
   public FacetResult searchTopChildren() throws IOException {
 
     // Aggregates the facet counts
-    FacetsCollectorManager fcm = new FacetsCollectorManager();
+    var fcm = new FacetsCollectorManager();
 
     // MatchAllDocsQuery is for "browsing" (counts facets
     // for all non-deleted docs in the index); normally
     // you'd use a "normal" query:
-    FacetsCollector fc =
+    var fc =
         FacetsCollectorManager.search(searcher, new MatchAllDocsQuery(), 10, fcm).facetsCollector();
 
     Facets facets = new LongRangeFacetCounts("error timestamp", fc, logTimestampRanges);
@@ -149,7 +149,7 @@ public class RangeFacetsExample implements Closeable {
 
     // Passing no baseQuery means we drill down on all
     // documents ("browse only"):
-    DrillDownQuery q = new DrillDownQuery(getConfig());
+    var q = new DrillDownQuery(getConfig());
 
     q.add("timestamp", LongPoint.newRangeQuery("timestamp", range.min, range.max));
     return searcher.search(q, 10);
@@ -159,13 +159,13 @@ public class RangeFacetsExample implements Closeable {
   public DrillSideways.DrillSidewaysResult drillSideways(LongRange range) throws IOException {
     // Passing no baseQuery means we drill down on all
     // documents ("browse only"):
-    DrillDownQuery q = new DrillDownQuery(getConfig());
+    var q = new DrillDownQuery(getConfig());
     q.add("timestamp", LongPoint.newRangeQuery("timestamp", range.min, range.max));
 
     // DrillSideways only handles taxonomy and sorted set drill facets by default; to do range
     // facets we must subclass and override the
     // buildFacetsResult method.
-    DrillSideways.DrillSidewaysResult result =
+    var result =
         new DrillSideways(searcher, getConfig(), null, null) {
           @Override
           protected Facets buildFacetsResult(
@@ -191,7 +191,7 @@ public class RangeFacetsExample implements Closeable {
 
   /** Runs the search and drill-down examples and prints the results. */
   public static void main(String[] args) throws Exception {
-    RangeFacetsExample example = new RangeFacetsExample();
+    var example = new RangeFacetsExample();
     example.index();
 
     System.out.println("Facet counting example:");
@@ -206,13 +206,13 @@ public class RangeFacetsExample implements Closeable {
     System.out.println("\n");
     System.out.println("Facet drill-down example (timestamp/Past six hours):");
     System.out.println("---------------------------------------------");
-    TopDocs hits = example.drillDown(example.PAST_SIX_HOURS);
+    var hits = example.drillDown(example.PAST_SIX_HOURS);
     System.out.println(hits.totalHits + " totalHits");
 
     System.out.println("\n");
     System.out.println("Facet drill-sideways example (timestamp/Past six hours):");
     System.out.println("---------------------------------------------");
-    DrillSideways.DrillSidewaysResult sideways = example.drillSideways(example.PAST_SIX_HOURS);
+    var sideways = example.drillSideways(example.PAST_SIX_HOURS);
     System.out.println(sideways.hits.totalHits + " totalHits");
     System.out.println(sideways.facets.getTopChildren(10, "timestamp"));
 

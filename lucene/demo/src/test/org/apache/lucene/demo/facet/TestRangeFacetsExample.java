@@ -16,8 +16,6 @@
  */
 package org.apache.lucene.demo.facet;
 
-import org.apache.lucene.facet.FacetResult;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.tests.util.LuceneTestCase;
 import org.junit.Test;
 
@@ -25,9 +23,9 @@ public class TestRangeFacetsExample extends LuceneTestCase {
 
   @Test
   public void testSimple() throws Exception {
-    RangeFacetsExample example = new RangeFacetsExample();
+    var example = new RangeFacetsExample();
     example.index();
-    FacetResult result = example.search();
+    var result = example.search();
     assertEquals(
         "dim=timestamp path=[] value=87 childCount=3\n  Past hour (4)\n  Past six hours (22)\n  Past day (87)\n",
         result.toString());
@@ -52,9 +50,9 @@ public class TestRangeFacetsExample extends LuceneTestCase {
   @Test
   @SuppressWarnings("unchecked")
   public void testDrillDown() throws Exception {
-    RangeFacetsExample example = new RangeFacetsExample();
+    var example = new RangeFacetsExample();
     example.index();
-    TopDocs hits = example.drillDown(example.PAST_SIX_HOURS);
+    var hits = example.drillDown(example.PAST_SIX_HOURS);
     assertEquals(22, hits.totalHits.value());
     example.close();
   }

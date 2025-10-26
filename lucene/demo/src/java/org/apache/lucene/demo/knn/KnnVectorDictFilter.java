@@ -60,7 +60,7 @@ public final class KnnVectorDictFilter extends TokenFilter {
     if (input.incrementToken() == false) {
       return false;
     }
-    BytesRef term = new BytesRef(termAtt.toString());
+    var term = new BytesRef(termAtt.toString());
     dict.get(term, scratchBytes);
     scratchBuffer.position(0);
     scratchBuffer.get(scratchFloats);
